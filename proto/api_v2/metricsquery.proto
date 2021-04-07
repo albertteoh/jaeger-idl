@@ -68,6 +68,14 @@ message GetMetricsResponse {
   ];
 }
 
+// GetServiceMetricsRequest contains parameters for the GetServiceMetrics RPC call.
+message GetServiceMetricsRequest {
+  MetricsQueryBaseRequest baseRequest = 1;
+  // quantile is the quantile to compute from latency histogram metrics.
+  // Required.
+  double quantile = 2;
+}
+
 // GetServiceLatenciesRequest contains parameters for the GetServiceLatencies RPC call.
 message GetServiceLatenciesRequest {
   MetricsQueryBaseRequest baseRequest = 1;
@@ -84,6 +92,17 @@ message GetServiceCallRatesRequest {
 // GetServiceErrorRatesRequest contains parameters for the GetServiceErrorRates RPC call.
 message GetServiceErrorRatesRequest {
   MetricsQueryBaseRequest baseRequest = 1;
+}
+
+// GetOperationMetricsRequest contains parameters for the GetOperationMetrics RPC call.
+message GetOperationMetricsRequest {
+  MetricsQueryBaseRequest baseRequest = 1;
+  // service_name is the service name to fetch operation metrics from.
+  // Required.
+  string service_name = 2;
+  // quantile is the quantile to compute from latency histogram metrics.
+  // Required.
+  double quantile = 3;
 }
 
 // GetOperationLatenciesRequest contains parameters for the GetOperationLatencies RPC call.
@@ -114,6 +133,13 @@ message GetOperationErrorRatesRequest {
 }
 
 service MetricsQueryService {
+  // GetServiceMetrics is a convenience method that fetches the per-service latencies, call and error rate metrics.
+  rpc GetServiceMetrics(GetServiceMetricsRequest) returns (GetMetricsResponse) {
+    option (google.api.http) = {
+      get: "/metrics"
+    };
+  }
+
   // GetServiceLatencies gets the per-service latencies.
   rpc GetServiceLatencies(GetServiceLatenciesRequest) returns (GetMetricsResponse) {
     option (google.api.http) = {
@@ -132,6 +158,13 @@ service MetricsQueryService {
   rpc GetServiceErrorRates(GetServiceErrorRatesRequest) returns (GetMetricsResponse) {
     option (google.api.http) = {
       get: "/metrics/errors"
+    };
+  }
+
+  // GetOperationMetrics is a convenience method that fetches the per-operation latencies, call and error rate metrics for a given service.
+  rpc GetOperationMetrics(GetOperationMetricsRequest) returns (GetMetricsResponse) {
+    option (google.api.http) = {
+      get: "/metrics/{service_name}"
     };
   }
 
